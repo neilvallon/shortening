@@ -1,4 +1,4 @@
-package shortening
+package shortening // import "vallon.me/shortening"
 
 import (
 	"bytes"
