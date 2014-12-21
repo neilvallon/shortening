@@ -77,7 +77,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 var page = `<!DOCTYPE html>
 <html>
 <head>
-	<title>blstr - Chat Example</title>
+	<title>Shortening - Fat free URLs</title>
 	<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
 	<script type="text/javascript">
 		$(function() {
