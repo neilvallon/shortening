@@ -27,7 +27,7 @@ of length *n*.
 
 
 ## Performance
-| Benchmark | ns/op |
-|-----------|-------|
-|  Encode   |  145  |
-|  Decode   |  355  |
+| Benchmark | ns/op  |
+|-----------|--------|
+|  Encode   |  148   |
+|  Decode   |   60.2 |

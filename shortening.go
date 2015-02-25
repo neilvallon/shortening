@@ -1,7 +1,6 @@
 package shortening // import "vallon.me/shortening"
 
 import (
-	"bytes"
 	"errors"
 	"math"
 )
@@ -21,6 +20,7 @@ var (
 		64 * 64 * 64 * 64 * 64 * 64 * 64 * 64 * 64,
 		64 * 64 * 64 * 64 * 64 * 64 * 64 * 64 * 64 * 64,
 	}
+	lookupTable []int
 )
 
 // Encode turns an uint64 into a slice of characters from 'charSet'
@@ -51,7 +51,11 @@ func Decode(b []byte) (n uint64, err error) {
 	}
 
 	for i, c := range b {
-		ind := bytes.IndexByte(charSet, c) // Faster than using a map
+		if len(lookupTable) <= int(c) {
+			return 0, errors.New("shortening: invalid decode character")
+		}
+
+		ind := lookupTable[c]
 		if ind == -1 {
 			return 0, errors.New("shortening: invalid decode character")
 		}
@@ -63,5 +67,33 @@ func Decode(b []byte) (n uint64, err error) {
 
 		n = nn
 	}
+
 	return n - 1, nil
+}
+
+func init() {
+	maxChar := max(charSet)
+
+	lookupTable = make([]int, maxChar+1)
+
+	// fill table with error values
+	for i := range lookupTable {
+		lookupTable[i] = -1
+	}
+
+	for i, c := range charSet {
+		lookupTable[c] = i
+	}
+}
+
+func max(b []byte) byte {
+	var n byte = 0x00
+
+	for _, c := range b {
+		if c > n {
+			n = c
+		}
+	}
+
+	return n
 }
