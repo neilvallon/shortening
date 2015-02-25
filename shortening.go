@@ -20,7 +20,7 @@ var (
 		64 * 64 * 64 * 64 * 64 * 64 * 64 * 64 * 64,
 		64 * 64 * 64 * 64 * 64 * 64 * 64 * 64 * 64 * 64,
 	}
-	lookupTable []int
+	lookupTable = makeTable(charSet)
 )
 
 // Encode turns an uint64 into a slice of characters from 'charSet'
@@ -71,19 +71,19 @@ func Decode(b []byte) (n uint64, err error) {
 	return n - 1, nil
 }
 
-func init() {
-	maxChar := max(charSet)
-
-	lookupTable = make([]int, maxChar+1)
+func makeTable(cs []byte) []int {
+	t := make([]int, max(cs)+1)
 
 	// fill table with error values
-	for i := range lookupTable {
-		lookupTable[i] = -1
+	for i := range t {
+		t[i] = -1
 	}
 
-	for i, c := range charSet {
-		lookupTable[c] = i
+	for i, c := range cs {
+		t[c] = i
 	}
+
+	return t
 }
 
 func max(b []byte) byte {
