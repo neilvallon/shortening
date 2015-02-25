@@ -6,20 +6,8 @@ import (
 )
 
 var (
-	charSet = []byte(`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`)
-	pow64   = []uint64{
-		1,
-		64,
-		64 * 64,
-		64 * 64 * 64,
-		64 * 64 * 64 * 64,
-		64 * 64 * 64 * 64 * 64,
-		64 * 64 * 64 * 64 * 64 * 64,
-		64 * 64 * 64 * 64 * 64 * 64 * 64,
-		64 * 64 * 64 * 64 * 64 * 64 * 64 * 64,
-		64 * 64 * 64 * 64 * 64 * 64 * 64 * 64 * 64,
-		64 * 64 * 64 * 64 * 64 * 64 * 64 * 64 * 64 * 64,
-	}
+	charSet     = []byte(`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`)
+	pow64       = powerArray(64)
 	lookupTable = makeTable(charSet)
 )
 
@@ -96,4 +84,21 @@ func max(b []byte) byte {
 	}
 
 	return n
+}
+
+func powerArray(base uint64) []uint64 {
+	parr := make([]uint64, 1, 11)
+	parr[0] = 1
+
+	for i := 1; ; i++ {
+		n := base * parr[i-1]
+
+		if n < parr[i-1] {
+			break // overflow
+		}
+
+		parr = append(parr, n)
+	}
+
+	return parr
 }
