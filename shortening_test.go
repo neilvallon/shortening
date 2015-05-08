@@ -126,28 +126,28 @@ func TestEncDecParity(t *testing.T) {
 	}
 }
 
+const benchSet = 10000
+
 func BenchmarkEncode(b *testing.B) {
-	b.StopTimer()
-	ids := make([]uint64, b.N)
+	ids := make([]uint64, benchSet)
 	for i := range ids {
 		ids[i] = uint64(rand.Int63())
 	}
 
-	b.StartTimer()
-	for _, id := range ids {
-		_ = Encode(id)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = Encode(ids[i%benchSet])
 	}
 }
 
 func BenchmarkDecode(b *testing.B) {
-	b.StopTimer()
-	urls := make([][]byte, b.N)
+	urls := make([][]byte, benchSet)
 	for i := range urls {
 		urls[i] = Encode(uint64(rand.Int63()))
 	}
 
-	b.StartTimer()
-	for _, b := range urls {
-		_, _ = Decode(b)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = Decode(urls[i%benchSet])
 	}
 }
