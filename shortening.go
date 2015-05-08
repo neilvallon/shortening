@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	// charSet - 64 ascii byte values (0-127)
 	charSet     = []byte(`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`)
 	pow64       = powerArray(64)
 	lookupTable = makeTable(charSet)
@@ -39,10 +40,6 @@ func Decode(b []byte) (n uint64, err error) {
 	}
 
 	for i, c := range b {
-		if len(lookupTable) <= int(c) {
-			return 0, errors.New("shortening: invalid decode character")
-		}
-
 		ind := lookupTable[c]
 		if ind == -1 {
 			return 0, errors.New("shortening: invalid decode character")
@@ -59,8 +56,8 @@ func Decode(b []byte) (n uint64, err error) {
 	return n - 1, nil
 }
 
-func makeTable(cs []byte) []int {
-	t := make([]int, max(cs)+1)
+func makeTable(cs []byte) []int8 {
+	t := make([]int8, 256)
 
 	// fill table with error values
 	for i := range t {
@@ -68,22 +65,10 @@ func makeTable(cs []byte) []int {
 	}
 
 	for i, c := range cs {
-		t[c] = i
+		t[c] = int8(i)
 	}
 
 	return t
-}
-
-func max(b []byte) byte {
-	var n byte = 0x00
-
-	for _, c := range b {
-		if c > n {
-			n = c
-		}
-	}
-
-	return n
 }
 
 func powerArray(base uint64) []uint64 {

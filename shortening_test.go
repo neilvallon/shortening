@@ -75,6 +75,7 @@ func TestDecodeErrors(t *testing.T) {
 		[]byte("123456789_-"),  // overflow
 		[]byte("AAAAAAAAAAAA"), // 12+ bytes
 		[]byte("*"),            // invalid character
+		[]byte("\xFF"),         // invalid character
 	}
 
 	for _, test := range tests {
