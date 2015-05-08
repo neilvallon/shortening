@@ -68,6 +68,23 @@ func TestDecodeShareInt(t *testing.T) {
 	}
 }
 
+func TestDecodeErrors(t *testing.T) {
+	tests := [][]byte{
+		nil,
+		[]byte(""),
+		[]byte("123456789_-"),  // overflow
+		[]byte("AAAAAAAAAAAA"), // 12+ bytes
+		[]byte("*"),            // invalid character
+	}
+
+	for _, test := range tests {
+		if _, err := Decode(test); err == nil {
+			t.Logf("%q", test)
+			t.Error("error expected. got nil")
+		}
+	}
+}
+
 func TestEncDecParity(t *testing.T) {
 	// test first 10k
 	for i := uint64(0); i < 100000; i++ {

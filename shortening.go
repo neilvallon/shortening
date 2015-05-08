@@ -34,8 +34,8 @@ func Encode(n uint64) []byte {
 // Errors are returned for invalid characters or input that would
 // cause an overflow.
 func Decode(b []byte) (n uint64, err error) {
-	if 11 < len(b) {
-		return 0, errors.New("shortening: too many bytes to decode")
+	if 11 < len(b) || len(b) == 0 {
+		return 0, errors.New("shortening: invalid decode length")
 	}
 
 	for i, c := range b {
