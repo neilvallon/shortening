@@ -8,7 +8,6 @@ import (
 var (
 	// charSet - 64 ascii byte values (0-127)
 	charSet     = []byte(`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`)
-	pow64       = powerArray(64)
 	lookupTable = makeTable(charSet)
 )
 
@@ -45,7 +44,7 @@ func Decode(b []byte) (n uint64, err error) {
 			return 0, errors.New("shortening: invalid decode character")
 		}
 
-		nn := n + uint64(ind+1)*pow64[i]
+		nn := n + uint64(ind+1)<<uint(6*i)
 		if nn-1 < n {
 			return 0, errors.New("shortening: int64 overflow")
 		}
@@ -69,21 +68,4 @@ func makeTable(cs []byte) []int8 {
 	}
 
 	return t
-}
-
-func powerArray(base uint64) []uint64 {
-	parr := make([]uint64, 1, 11)
-	parr[0] = 1
-
-	for i := 1; ; i++ {
-		n := base * parr[i-1]
-
-		if n < parr[i-1] {
-			break // overflow
-		}
-
-		parr = append(parr, n)
-	}
-
-	return parr
 }
