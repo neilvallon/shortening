@@ -24,6 +24,11 @@ func TestEncodeShareInt(t *testing.T) {
 		{4159, "__"},
 		{4160, "AAA"},
 		{1090785344, "AAAAAA"},
+
+		{1171221845949812800 - 1, "__________"},
+		{1171221845949812800, "AAAAAAAAAAA"},
+		{1171221845949812800 + 1, "BAAAAAAAAAA"},
+
 		{math.MaxUint64 - 1, "----------O"},
 		{math.MaxUint64, "_---------O"},
 	}
@@ -52,6 +57,11 @@ func TestDecodeShareInt(t *testing.T) {
 		{4159, "__"},
 		{4160, "AAA"},
 		{1090785344, "AAAAAA"},
+
+		{1171221845949812800 - 1, "__________"},
+		{1171221845949812800, "AAAAAAAAAAA"},
+		{1171221845949812800 + 1, "BAAAAAAAAAA"},
+
 		{math.MaxUint64 - 1, "----------O"},
 		{math.MaxUint64, "_---------O"},
 	}

@@ -40,12 +40,13 @@ func Decode(b []byte) (n uint64, err error) {
 			return 0, errors.New("shortening: invalid decode character")
 		}
 
-		nn := n<<6 + uint64(ind)
-		if nn-1 < n {
-			return 0, errors.New("shortening: int64 overflow")
-		}
+		n = n<<6 + uint64(ind)
+	}
 
-		n = nn
+	// 1171221845949812800 is the minimum value to have len == 11
+	// any lower value is an overflow.
+	if len(b) == 11 && n-1 < 1171221845949812800 {
+		return 0, errors.New("shortening: int64 overflow")
 	}
 
 	return n - 1, nil
