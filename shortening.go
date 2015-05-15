@@ -30,13 +30,62 @@ func Encode(n uint64) []byte {
 // Errors are returned for invalid characters or input that would
 // cause an overflow.
 func Decode(b []byte) (n uint64, err error) {
-	if 11 < len(b) || len(b) == 0 {
+	var ind, invalid uint8
+	switch len(b) {
+	default:
 		return 0, errors.New("shortening: invalid decode length")
-	}
-
-	var invalid uint8
-	for i := len(b) - 1; 0 <= i; i-- {
-		ind := lookupTable[b[i]]
+	case 11:
+		ind = lookupTable[b[10]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 10:
+		ind = lookupTable[b[9]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 9:
+		ind = lookupTable[b[8]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 8:
+		ind = lookupTable[b[7]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 7:
+		ind = lookupTable[b[6]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 6:
+		ind = lookupTable[b[5]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 5:
+		ind = lookupTable[b[4]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 4:
+		ind = lookupTable[b[3]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 3:
+		ind = lookupTable[b[2]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 2:
+		ind = lookupTable[b[1]]
+		invalid |= ind
+		n = n<<6 + uint64(ind)
+		fallthrough
+	case 1:
+		ind = lookupTable[b[0]]
 		invalid |= ind
 		n = n<<6 + uint64(ind)
 	}
