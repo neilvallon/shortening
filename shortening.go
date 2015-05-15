@@ -6,7 +6,6 @@ import (
 )
 
 var (
-	// charSet - 64 ascii byte values (0-127)
 	charSet     = []byte(`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`)
 	lookupTable = makeTable(charSet)
 )
