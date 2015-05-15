@@ -12,21 +12,17 @@ var (
 
 // Encode turns an uint64 into a slice of characters from 'charSet'
 func Encode(n uint64) []byte {
-	if n == math.MaxUint64 {
-		return []byte("_---------O")
-	}
-
 	var buf [11]byte
 	var i int
 
-	n++
-	for ; 0 != n; i++ {
-		n--
-		buf[i] = charSet[n%64]
-		n /= 64
-	}
+	for {
+		buf[i], n = charSet[n%64], (n/64)-1
+		i++
 
-	return buf[:i]
+		if n == math.MaxUint64 {
+			return buf[:i]
+		}
+	}
 }
 
 // Decode turns a slice of characters back into the original unit64.
