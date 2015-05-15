@@ -39,11 +39,11 @@ func Decode(b []byte) (n uint64, err error) {
 
 	for i, c := range b {
 		ind := lookupTable[c]
-		if ind == -1 {
+		if ind == 0 {
 			return 0, errors.New("shortening: invalid decode character")
 		}
 
-		nn := n + uint64(ind+1)<<uint(6*i)
+		nn := n + uint64(ind)<<uint(6*i)
 		if nn-1 < n {
 			return 0, errors.New("shortening: int64 overflow")
 		}
@@ -54,17 +54,9 @@ func Decode(b []byte) (n uint64, err error) {
 	return n - 1, nil
 }
 
-func makeTable(cs []byte) []int8 {
-	t := make([]int8, 256)
-
-	// fill table with error values
-	for i := range t {
-		t[i] = -1
-	}
-
+func makeTable(cs []byte) (t [256]uint8) {
 	for i, c := range cs {
-		t[c] = int8(i)
+		t[c] = uint8(i + 1)
 	}
-
 	return t
 }
