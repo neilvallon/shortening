@@ -34,13 +34,13 @@ func Decode(b []byte) (n uint64, err error) {
 		return 0, errors.New("shortening: invalid decode length")
 	}
 
-	for i, c := range b {
-		ind := lookupTable[c]
+	for i := len(b) - 1; 0 <= i; i-- {
+		ind := lookupTable[b[i]]
 		if ind == 0 {
 			return 0, errors.New("shortening: invalid decode character")
 		}
 
-		nn := n + uint64(ind)<<uint(6*i)
+		nn := n<<6 + uint64(ind)
 		if nn-1 < n {
 			return 0, errors.New("shortening: int64 overflow")
 		}
