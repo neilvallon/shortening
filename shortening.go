@@ -16,7 +16,7 @@ func Encode(n uint64) []byte {
 	var i int
 
 	for {
-		buf[i], n = charSet[n%64], (n/64)-1
+		buf[i], n = charSet[n&63], (n>>6)-1
 		i++
 
 		if n == math.MaxUint64 {
