@@ -16,16 +16,17 @@ func Encode(n uint64) []byte {
 		return []byte("_---------O")
 	}
 
-	b := make([]byte, 0, 11) // preallocate to avoid growslice
+	var buf [11]byte
+	var i int
 
 	n++
-	for 0 != n {
+	for ; 0 != n; i++ {
 		n--
-		b = append(b, charSet[n%64])
+		buf[i] = charSet[n%64]
 		n /= 64
 	}
 
-	return b
+	return buf[:i]
 }
 
 // Decode turns a slice of characters back into the original unit64.
