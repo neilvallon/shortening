@@ -34,13 +34,15 @@ func Decode(b []byte) (n uint64, err error) {
 		return 0, errors.New("shortening: invalid decode length")
 	}
 
+	var invalid uint8
 	for i := len(b) - 1; 0 <= i; i-- {
 		ind := lookupTable[b[i]]
-		if ind == 0 {
-			return 0, errors.New("shortening: invalid decode character")
-		}
-
+		invalid |= ind
 		n = n<<6 + uint64(ind)
+	}
+
+	if invalid == 0xFF {
+		return 0, errors.New("shortening: invalid decode character")
 	}
 
 	// 1171221845949812800 is the minimum value to have len == 11
@@ -53,6 +55,10 @@ func Decode(b []byte) (n uint64, err error) {
 }
 
 func makeTable(cs []byte) (t [256]uint8) {
+	for i := range t {
+		t[i] = 0xFF
+	}
+
 	for i, c := range cs {
 		t[c] = uint8(i + 1)
 	}
