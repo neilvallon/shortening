@@ -27,10 +27,12 @@ of length *n*.
 
 
 ## Performance
-| Benchmark | ns/op |
-|-----------|-------|
-|  Encode   |  68.3 |
-|  Decode   |  40.8 |
+|  Benchmark   |  ns/op |
+|--------------|--------|
+|  Encode      |   69.3 |
+|  Decode      |   40.8 |
+|  BigEncode   |  139.0 |
+|  BigDecode   | 1050.0 |
 
-* go1.5 darwin/amd64
+* go1.5.1 darwin/amd64
 * Intel Core i7 920 - 2.66 GHz
