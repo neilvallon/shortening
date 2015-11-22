@@ -8,6 +8,8 @@ import (
 var (
 	charSet     = []byte(`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`)
 	lookupTable = makeTable(charSet)
+
+	lookupBigTable = makeBigTable(charSet)
 )
 
 // Encode turns an uint64 into a slice of characters from 'charSet'
