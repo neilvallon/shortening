@@ -7,7 +7,7 @@ import (
 
 var (
 	big1  = big.NewInt(1)
-	big64 = big.NewInt(64)
+	big63 = big.NewInt(63)
 )
 
 // EncodeBig return a text representation of any positive integer
@@ -22,7 +22,8 @@ func EncodeBig(n *big.Int) ([]byte, error) {
 
 	for {
 		var m big.Int
-		n.DivMod(n, big64, &m)
+		m.And(n, big63)
+		n.Rsh(n, 6)
 
 		buf = append(buf, charSet[m.Int64()])
 		i++
@@ -48,7 +49,7 @@ func DecodeBig(b []byte) (*big.Int, error) {
 			return nil, errors.New("shortening: invalid decode character")
 		}
 
-		n.Mul(&n, big64)
+		n.Lsh(&n, 6)
 		n.Add(&n, ind)
 	}
 
