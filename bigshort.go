@@ -12,18 +12,21 @@ var (
 
 // EncodeBig return a text representation of any positive integer
 // using a base64 character set.
-func EncodeBig(n *big.Int) ([]byte, error) {
-	if n.Sign() == -1 {
+func EncodeBig(np *big.Int) ([]byte, error) {
+	if np.Sign() == -1 {
 		return nil, errors.New("shortening: encode values must be positive")
 	}
+
+	var n big.Int
+	n.Set(np)
 
 	buf := make([]byte, 0, 8)
 	var i int
 
 	for {
 		var m big.Int
-		m.And(n, big63)
-		n.Rsh(n, 6)
+		m.And(&n, big63)
+		n.Rsh(&n, 6)
 
 		buf = append(buf, charSet[m.Int64()])
 		i++
@@ -32,7 +35,7 @@ func EncodeBig(n *big.Int) ([]byte, error) {
 			return buf, nil
 		}
 
-		n.Sub(n, big1)
+		n.Sub(&n, big1)
 	}
 }
 
