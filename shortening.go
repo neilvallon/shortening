@@ -22,57 +22,61 @@ const (
 	min11 = (min10 + 1) << 6
 )
 
+var minTable = [...]uint64{0, min02, min03, min04, min05, min06, min07, min08, min09, min10, min11}
+
 // Encode turns an uint64 into a slice of characters from 'charSet'
 func Encode(n uint64) []byte {
-	var buf [11]byte
-	start := 10
+	var end uint8 = 1
 
+	nn := n - min11
+
+	var buf [11]byte
 	switch {
 	case min11 <= n:
-		buf[0], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[10] = charSet[(nn>>60)&63]
+		end++
 		fallthrough
 	case min10 <= n:
-		buf[1], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[9] = charSet[(nn>>54)&63]
+		end++
 		fallthrough
 	case min09 <= n:
-		buf[2], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[8] = charSet[(nn>>48)&63]
+		end++
 		fallthrough
 	case min08 <= n:
-		buf[3], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[7] = charSet[(nn>>42)&63]
+		end++
 		fallthrough
 	case min07 <= n:
-		buf[4], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[6] = charSet[(nn>>36)&63]
+		end++
 		fallthrough
 	case min06 <= n:
-		buf[5], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[5] = charSet[(nn>>30)&63]
+		end++
 		fallthrough
 	case min05 <= n:
-		buf[6], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[4] = charSet[(nn>>24)&63]
+		end++
 		fallthrough
 	case min04 <= n:
-		buf[7], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[3] = charSet[(nn>>18)&63]
+		end++
 		fallthrough
 	case min03 <= n:
-		buf[8], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[2] = charSet[(nn>>12)&63]
+		end++
 		fallthrough
 	case min02 <= n:
-		buf[9], n = charSet[n&63], (n>>6)-1
-		start--
+		buf[1] = charSet[(nn>>6)&63]
+		end++
 		fallthrough
 	default:
-		buf[10] = charSet[n&63]
+		buf[0] = charSet[nn&63]
 	}
 
-	return buf[start:]
+	return buf[:end]
 }
 
 // Decode turns a slice of characters back into the original unit64.
@@ -87,58 +91,60 @@ func Decode(b []byte) (n uint64, err error) {
 	case 11:
 		ind = lookupTable[b[10]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 60
 		fallthrough
 	case 10:
 		ind = lookupTable[b[9]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 54
 		fallthrough
 	case 9:
 		ind = lookupTable[b[8]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 48
 		fallthrough
 	case 8:
 		ind = lookupTable[b[7]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 42
 		fallthrough
 	case 7:
 		ind = lookupTable[b[6]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 36
 		fallthrough
 	case 6:
 		ind = lookupTable[b[5]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 30
 		fallthrough
 	case 5:
 		ind = lookupTable[b[4]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 24
 		fallthrough
 	case 4:
 		ind = lookupTable[b[3]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 18
 		fallthrough
 	case 3:
 		ind = lookupTable[b[2]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 12
 		fallthrough
 	case 2:
 		ind = lookupTable[b[1]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind) << 6
 		fallthrough
 	case 1:
 		ind = lookupTable[b[0]]
 		invalid |= ind
-		n = n<<6 + uint64(ind)
+		n |= uint64(ind)
 	}
+
+	n += minTable[len(b)-1]
 
 	if invalid == 0xFF {
 		return 0, errors.New("shortening: invalid decode character")
@@ -146,11 +152,11 @@ func Decode(b []byte) (n uint64, err error) {
 
 	// 1171221845949812800 is the minimum value to have len == 11
 	// any lower value is an overflow.
-	if len(b) == 11 && n-1 < min11 {
+	if len(b) == 11 && n < min11 {
 		return 0, errors.New("shortening: int64 overflow")
 	}
 
-	return n - 1, nil
+	return n, nil
 }
 
 func makeTable(cs []byte) (t [256]uint8) {
@@ -159,7 +165,8 @@ func makeTable(cs []byte) (t [256]uint8) {
 	}
 
 	for i, c := range cs {
-		t[c] = uint8(i + 1)
+		t[c] = uint8(i)
 	}
+
 	return t
 }
