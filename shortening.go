@@ -1,6 +1,9 @@
 package shortening // import "vallon.me/shortening"
 
-import "errors"
+import (
+	"errors"
+	"math/bits"
+)
 
 var (
 	charSet     = []byte(`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`)
@@ -26,57 +29,31 @@ var minTable = [...]uint64{0, min02, min03, min04, min05, min06, min07, min08, m
 
 // Encode turns an uint64 into a slice of characters from 'charSet'
 func Encode(n uint64) []byte {
-	var end uint8 = 1
-
 	nn := n - min11
-
-	var buf [11]byte
-	switch {
-	case min11 <= n:
-		buf[10] = charSet[(nn>>60)&63]
-		end++
-		fallthrough
-	case min10 <= n:
-		buf[9] = charSet[(nn>>54)&63]
-		end++
-		fallthrough
-	case min09 <= n:
-		buf[8] = charSet[(nn>>48)&63]
-		end++
-		fallthrough
-	case min08 <= n:
-		buf[7] = charSet[(nn>>42)&63]
-		end++
-		fallthrough
-	case min07 <= n:
-		buf[6] = charSet[(nn>>36)&63]
-		end++
-		fallthrough
-	case min06 <= n:
-		buf[5] = charSet[(nn>>30)&63]
-		end++
-		fallthrough
-	case min05 <= n:
-		buf[4] = charSet[(nn>>24)&63]
-		end++
-		fallthrough
-	case min04 <= n:
-		buf[3] = charSet[(nn>>18)&63]
-		end++
-		fallthrough
-	case min03 <= n:
-		buf[2] = charSet[(nn>>12)&63]
-		end++
-		fallthrough
-	case min02 <= n:
-		buf[1] = charSet[(nn>>6)&63]
-		end++
-		fallthrough
-	default:
-		buf[0] = charSet[nn&63]
+	buf := [11]byte{
+		charSet[nn&63],
+		charSet[(nn>>6)&63],
+		charSet[(nn>>12)&63],
+		charSet[(nn>>18)&63],
+		charSet[(nn>>24)&63],
+		charSet[(nn>>30)&63],
+		charSet[(nn>>36)&63],
+		charSet[(nn>>42)&63],
+		charSet[(nn>>48)&63],
+		charSet[(nn>>54)&63],
+		charSet[(nn>>60)&63],
 	}
 
-	return buf[:end]
+	return buf[:encLen(n)]
+}
+
+func encLen(n uint64) int {
+	stet := bits.Len64(n) / 6
+	if minTable[stet] <= n {
+		stet++
+	}
+
+	return stet
 }
 
 // Decode turns a slice of characters back into the original unit64.
