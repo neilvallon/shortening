@@ -4,16 +4,13 @@ import (
 	"errors"
 )
 
-var (
-	charSet     = []byte(`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`)
-	lookupTable = makeTable(charSet)
+const CharSet64 = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`
 
-	lookupBigTable = makeBigTable(charSet)
-)
+var lookupTable = makeTable(CharSet64)
 
 const (
-	// Min values are the smallest value of 'n' that uses the number of
-	// place values.
+	// Min values are the smallest value of 'n' that requires a string
+	// of that length.
 	min02 = 1 << 6
 	min03 = (min02 + 1) << 6
 	min04 = (min03 + 1) << 6
@@ -28,7 +25,7 @@ const (
 
 var minTable = [...]uint64{0, min02, min03, min04, min05, min06, min07, min08, min09, min10, min11}
 
-// Encode turns an uint64 into a slice of characters from 'charSet'
+// Encode turns an uint64 into a slice of characters from 'CharSet64'
 func Encode(n uint64) []byte {
 	var buf [11]byte
 
@@ -38,7 +35,7 @@ func Encode(n uint64) []byte {
 			return buf[:i]
 		}
 
-		buf[i], nn = charSet[nn&63], nn>>6
+		buf[i], nn = CharSet64[nn&63], nn>>6
 	}
 
 	return buf[:]
@@ -66,16 +63,16 @@ func Decode(b []byte) (n uint64, err error) {
 		return 0, errors.New("shortening: invalid decode character")
 	}
 
-	// 1171221845949812800 is the minimum value to have len == 11
+	// min11 is the minimum value to have len == 11
 	// any lower value is an overflow.
 	if len(b) == 11 && n < min11 {
-		return 0, errors.New("shortening: int64 overflow")
+		return 0, errors.New("shortening: uint64 overflow")
 	}
 
 	return n, nil
 }
 
-func makeTable(cs []byte) (t [256]uint8) {
+func makeTable(cs string) (t [256]uint8) {
 	for i := range t {
 		t[i] = 0xFF
 	}

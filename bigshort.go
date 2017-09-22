@@ -6,6 +6,8 @@ import (
 )
 
 var (
+	lookupBigTable = makeBigTable(CharSet64)
+
 	big1  = big.NewInt(1)
 	big63 = big.NewInt(63)
 )
@@ -28,7 +30,7 @@ func EncodeBig(np *big.Int) ([]byte, error) {
 		m.And(&n, big63)
 		n.Rsh(&n, 6)
 
-		buf = append(buf, charSet[m.Int64()])
+		buf = append(buf, CharSet64[m.Int64()])
 		i++
 
 		if n.Sign() == 0 {
@@ -59,7 +61,7 @@ func DecodeBig(b []byte) (*big.Int, error) {
 	return n.Sub(&n, big1), nil
 }
 
-func makeBigTable(cs []byte) (t [256]*big.Int) {
+func makeBigTable(cs string) (t [256]*big.Int) {
 	for i, c := range cs {
 		t[c] = big.NewInt(int64(i + 1))
 	}
