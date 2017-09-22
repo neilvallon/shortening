@@ -1,22 +1,20 @@
 # Shortening
-A Base64-like encoder for creating short URLs
+A bijective base<sub>64</sub> encoder for creating short URLs.
 
 
 ## Padding significant
-Most encoders use number bases to convert characters.
-This can waste space by refusing to use the zero-value in the
-most significant position.
+Most encoders use decimal bases to convert characters.
+This can waste space by refusing to use the zero-value in the most significant position.
 
 For example, in base<sub>10</sub> the numbers **1**, **01**, **00001**,
-are all equivalent despite being padded with 0's.
+are all equivalent despite being padded with leading 0's.
 
-This is the reason encoders like Radix will skip values
-such as **A** and **AAA** in favor of possibly longer strings.
+This is why non-bijective encoders will skip values such as **A** and **AAA**
+in favor of possibly longer strings.
 
-By using these values we can recover 64<sup>(n-1)</sup> extra URLs
+By using these values we can recover 64<sup>(n-1)</sup> IDs
 of length *n*.
 
-#### URL Counts
 | Length | Radix<sub>64</sub> |   Shortening  | difference |
 |--------|--------------------|---------------|------------|
 |    1   |                 63 |            64 |          1 |
@@ -36,3 +34,7 @@ of length *n*.
 
 * go1.9 darwin/amd64
 * Intel Core i7 920 - 2.66 GHz
+
+
+## References
+Wikipedia: [Bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration)
