@@ -27,12 +27,13 @@ of length *n*.
 ## Performance
 |  Benchmark   |  ns/op |
 |--------------|--------|
-|  Encode      |   66.2 |
-|  Decode      |   30.9 |
+|  Encode64    |   47.4 |
+|  Decode64    |   25.6 |
+|  Encode32    |   48.1 |
+|  Decode32    |   26.8 |
 
-* go1.9 darwin/amd64
-* Intel Core i7 920 - 2.66 GHz
-
+* go1.9.2 darwin/amd64
+* Intel Xeon X5675 - 3.06 GHz
 
 ## References
 Wikipedia: [Bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration)
