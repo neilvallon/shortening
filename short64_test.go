@@ -2,137 +2,65 @@ package shortening
 
 import (
 	"math"
-	"math/rand"
 	"testing"
-	"time"
 )
 
-var b64tests = []struct {
-	ID  uint64
-	URL string
-}{
-	{0, "A"},
-	{1, "B"},
-	{2, "C"},
-	{min02 - 1, "_"},
-	{min02, "AA"},
-	{min02 + 1, "BA"},
-	{min02 + 2, "CA"},
-	{min02 * 2, "AB"},
-	{min03 - 1, "__"},
-	{min03, "AAA"},
-	{min06, "AAAAAA"},
+var testCoder64 = &testCoder{Encode, Decode}
 
-	{min11 - 1, "__________"},
-	{min11, "AAAAAAAAAAA"},
-	{min11 + 1, "BAAAAAAAAAA"},
+func TestEncode64(t *testing.T) {
+	// verify counting for two place values
+	propEncCounting(t, CharSet64, testCoder64)
 
-	{math.MaxUint64 - 1, "----------O"},
-	{math.MaxUint64, "_---------O"},
-}
+	// checks expected values before and after a place value change.
+	propRollover(t, CharSet64, minTable[1:], testCoder64)
 
-func TestEncodeShareInt(t *testing.T) {
-	for _, test := range b64tests {
-		if e := string(Encode(test.ID)); e != test.URL {
-			t.Errorf("got: %q - expected: %q", e, test.URL)
-		}
+	// manualy check max uint64 encode
+	maxEncoded := "O---------_"
+	if e := string(testCoder64.Encode(math.MaxUint64)); e != maxEncoded {
+		t.Errorf("got: %q - expected: %q", e, maxEncoded)
 	}
 }
 
-func TestDecodeShareInt(t *testing.T) {
-	for _, test := range b64tests {
-		n, err := Decode([]byte(test.URL))
-		if err != nil {
-			t.Logf("%q", test.URL)
-			t.Fatal(err)
-		}
-		if n != test.ID {
-			t.Errorf("got: %d - expected: %d", n, test.ID)
-		}
+func TestDecode64(t *testing.T) {
+	propDecCounting(t, CharSet64, testCoder64)
+
+	// manualy check max uint64 encode
+	n, err := testCoder64.Decode([]byte("O---------_"))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if max := uint64(math.MaxUint64); n != max {
+		t.Errorf("got: %q - expected: %q", n, max)
 	}
 }
 
-func TestDecodeErrors(t *testing.T) {
-	tests := [][]byte{
-		nil,
-		[]byte(""),
-		[]byte("123456789_-"),  // overflow
-		[]byte("AAAAAAAAAAAA"), // 12+ bytes
-		[]byte("*"),            // invalid character
-		[]byte("\xFF"),         // invalid character
+func TestDecode64Errors(t *testing.T) {
+	tests := []struct {
+		ID  []byte
+		Err error
+	}{
+		{nil, InvalidDecodeLen},
+		{[]byte(""), InvalidDecodeLen},
+		{[]byte("-_987654321"), Overflow},
+		{[]byte("AAAAAAAAAAAA"), InvalidDecodeLen},
+		{[]byte("*"), InvalidCharacter},
+		{[]byte("\xFF"), InvalidCharacter},
 	}
 
 	for _, test := range tests {
-		if _, err := Decode(test); err == nil {
-			t.Logf("%q", test)
+		_, err := testCoder64.Decode(test.ID)
+		if err == nil {
+			t.Logf("%q", test.ID)
 			t.Error("error expected. got nil")
+		} else if err != test.Err {
+			t.Logf("%q", test)
+			t.Fatalf("got: %q - expected: %q", err, test.Err)
 		}
 	}
 }
 
-func TestEncDecParity(t *testing.T) {
-	// test first 10k
-	for i := uint64(0); i < 100000; i++ {
-		n, err := Decode(Encode(i))
-		if err != nil {
-			t.Logf("test ID: %d", i)
-			t.Fatal(err)
-		}
-		if n != i {
-			t.Errorf("got: %d - expected: %d", n, i)
-		}
-	}
+func TestEncDec64Parity(t *testing.T) { propParity(t, testCoder64) }
 
-	// test last 10k
-	for i := uint64(math.MaxUint64 - 100000); i < math.MaxUint64; i++ {
-		n, err := Decode(Encode(i))
-		if err != nil {
-			t.Logf("test ID: %d", i)
-			t.Fatal(err)
-		}
-		if n != i {
-			t.Errorf("got: %d - expected: %d", n, i)
-		}
-	}
-
-	// test random 10k
-	var rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i := 0; i < 100000; i++ {
-		v := rnd.Uint64()
-
-		n, err := Decode(Encode(v))
-		if err != nil {
-			t.Logf("test ID: %d", v)
-			t.Fatal(err)
-		}
-		if n != v {
-			t.Errorf("got: %d - expected: %d", n, v)
-		}
-	}
-}
-
-const benchSet = 10000
-
-func BenchmarkEncode(b *testing.B) {
-	ids := make([]uint64, benchSet)
-	for i := range ids {
-		ids[i] = rand.Uint64()
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = Encode(ids[i%benchSet])
-	}
-}
-
-func BenchmarkDecode(b *testing.B) {
-	urls := make([][]byte, benchSet)
-	for i := range urls {
-		urls[i] = Encode(rand.Uint64())
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, _ = Decode(urls[i%benchSet])
-	}
-}
+func BenchmarkEncode64(b *testing.B) { benchEncode(b, testCoder64) }
+func BenchmarkDecode64(b *testing.B) { benchDecode(b, testCoder64) }

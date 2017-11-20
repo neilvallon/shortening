@@ -1,9 +1,5 @@
 package shortening // import "vallon.me/shortening"
 
-import (
-	"errors"
-)
-
 const CharSet32 = `ABCDEFGHIJKLMNOPQRSTUVWXYZ234567`
 
 var lookupTable32 = makeTable(CharSet32)
@@ -37,10 +33,10 @@ func Encode32(n uint64) []byte {
 	nn := n - b32min13
 	for i, m := range minTable32 {
 		if n < m {
-			return buf[:i]
+			return buf[13-i:]
 		}
 
-		buf[i], nn = CharSet32[nn&31], nn>>5
+		buf[12-i], nn = CharSet32[nn&31], nn>>5
 	}
 
 	return buf[:]
@@ -52,12 +48,12 @@ func Encode32(n uint64) []byte {
 // cause an overflow.
 func Decode32(b []byte) (n uint64, err error) {
 	if 13 < len(b) || len(b) == 0 {
-		return 0, errors.New("shortening: invalid decode length")
+		return 0, InvalidDecodeLen
 	}
 
 	var invalid uint8
-	for i := len(b) - 1; 0 <= i; i-- {
-		ind := lookupTable32[b[i]]
+	for _, c := range b {
+		ind := lookupTable32[c]
 		invalid |= ind
 		n = n<<5 | uint64(ind)
 	}
@@ -65,13 +61,13 @@ func Decode32(b []byte) (n uint64, err error) {
 	n += minTable32[len(b)-1]
 
 	if invalid == 0xFF {
-		return 0, errors.New("shortening: invalid decode character")
+		return 0, InvalidCharacter
 	}
 
 	// b32min13 is the minimum value to have len == 13
 	// any lower value is an overflow.
 	if len(b) == 13 && n < b32min13 {
-		return 0, errors.New("shortening: uint64 overflow")
+		return 0, Overflow
 	}
 
 	return n, nil

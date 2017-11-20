@@ -1,9 +1,5 @@
 package shortening // import "vallon.me/shortening"
 
-import (
-	"errors"
-)
-
 const CharSet64 = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`
 
 var lookupTable = makeTable(CharSet64)
@@ -32,10 +28,10 @@ func Encode(n uint64) []byte {
 	nn := n - min11
 	for i, m := range minTable {
 		if n < m {
-			return buf[:i]
+			return buf[11-i:]
 		}
 
-		buf[i], nn = CharSet64[nn&63], nn>>6
+		buf[10-i], nn = CharSet64[nn&63], nn>>6
 	}
 
 	return buf[:]
@@ -47,12 +43,12 @@ func Encode(n uint64) []byte {
 // cause an overflow.
 func Decode(b []byte) (n uint64, err error) {
 	if 11 < len(b) || len(b) == 0 {
-		return 0, errors.New("shortening: invalid decode length")
+		return 0, InvalidDecodeLen
 	}
 
 	var invalid uint8
-	for i := len(b) - 1; 0 <= i; i-- {
-		ind := lookupTable[b[i]]
+	for _, c := range b {
+		ind := lookupTable[c]
 		invalid |= ind
 		n = n<<6 | uint64(ind)
 	}
@@ -60,25 +56,14 @@ func Decode(b []byte) (n uint64, err error) {
 	n += minTable[len(b)-1]
 
 	if invalid == 0xFF {
-		return 0, errors.New("shortening: invalid decode character")
+		return 0, InvalidCharacter
 	}
 
 	// min11 is the minimum value to have len == 11
 	// any lower value is an overflow.
 	if len(b) == 11 && n < min11 {
-		return 0, errors.New("shortening: uint64 overflow")
+		return 0, Overflow
 	}
 
 	return n, nil
-}
-
-func makeTable(cs string) (t [256]uint8) {
-	for i := range t {
-		t[i] = 0xFF
-	}
-
-	for i, c := range cs {
-		t[c] = uint8(i)
-	}
-	return t
 }
