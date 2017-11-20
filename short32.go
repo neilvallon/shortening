@@ -28,18 +28,16 @@ var minTable32 = [...]uint64{0,
 
 // Encode32 turns an uint64 into a slice of characters from 'charSet32'
 func Encode32(n uint64) []byte {
-	var buf [13]byte
+	l := encLen(n, 5, minTable32[:])
 
-	nn := n - b32min13
-	for i, m := range minTable32 {
-		if n < m {
-			return buf[13-i:]
-		}
+	n -= b32min13
 
-		buf[12-i], nn = CharSet32[nn&31], nn>>5
+	buf := make([]byte, l)
+	for i := l - 1; 0 <= i; i-- {
+		buf[i], n = CharSet32[n&31], n>>5
 	}
 
-	return buf[:]
+	return buf
 }
 
 // Decode32 turns a slice of characters back into the original unit64.

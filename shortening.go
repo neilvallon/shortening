@@ -2,6 +2,7 @@ package shortening // import "vallon.me/shortening"
 
 import (
 	"errors"
+	"math/bits"
 )
 
 type encoder interface {
@@ -32,4 +33,13 @@ func makeTable(cs string) (t [256]uint8) {
 		t[c] = uint8(i)
 	}
 	return t
+}
+
+func encLen(n uint64, width int, table []uint64) int {
+	bit := bits.Len64(n) / width
+	if table[bit] <= n {
+		bit++
+	}
+
+	return bit
 }

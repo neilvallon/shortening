@@ -23,18 +23,16 @@ var minTable = [...]uint64{0, min02, min03, min04, min05, min06, min07, min08, m
 
 // Encode turns an uint64 into a slice of characters from 'CharSet64'
 func Encode(n uint64) []byte {
-	var buf [11]byte
+	l := encLen(n, 6, minTable[:])
 
-	nn := n - min11
-	for i, m := range minTable {
-		if n < m {
-			return buf[11-i:]
-		}
+	n -= min11
 
-		buf[10-i], nn = CharSet64[nn&63], nn>>6
+	buf := make([]byte, l)
+	for i := l - 1; 0 <= i; i-- {
+		buf[i], n = CharSet64[n&63], n>>6
 	}
 
-	return buf[:]
+	return buf
 }
 
 // Decode turns a slice of characters back into the original unit64.
