@@ -36,12 +36,21 @@ func Encode32(n uint64) []byte {
 
 	n -= b32min13
 
-	buf := make([]byte, l)
-	for i := l - 1; 0 <= i; i-- {
-		buf[i], n = e256CharSet32[uint8(n)], n>>5
-	}
-
-	return buf
+	return []byte{
+		e256CharSet32[uint8(n>>60)],
+		e256CharSet32[uint8(n>>55)],
+		e256CharSet32[uint8(n>>50)],
+		e256CharSet32[uint8(n>>45)],
+		e256CharSet32[uint8(n>>40)],
+		e256CharSet32[uint8(n>>35)],
+		e256CharSet32[uint8(n>>30)],
+		e256CharSet32[uint8(n>>25)],
+		e256CharSet32[uint8(n>>20)],
+		e256CharSet32[uint8(n>>15)],
+		e256CharSet32[uint8(n>>10)],
+		e256CharSet32[uint8(n>>5)],
+		e256CharSet32[uint8(n)],
+	}[len(minTable32)-l:]
 }
 
 // Decode32 turns a slice of characters back into the original unit64.

@@ -28,12 +28,19 @@ func Encode(n uint64) []byte {
 
 	n -= min11
 
-	buf := make([]byte, l)
-	for i := l - 1; 0 <= i; i-- {
-		buf[i], n = e256CharSet64[uint8(n)], n>>6
-	}
-
-	return buf
+	return []byte{
+		e256CharSet64[uint8(n>>60)],
+		e256CharSet64[uint8(n>>54)],
+		e256CharSet64[uint8(n>>48)],
+		e256CharSet64[uint8(n>>42)],
+		e256CharSet64[uint8(n>>36)],
+		e256CharSet64[uint8(n>>30)],
+		e256CharSet64[uint8(n>>24)],
+		e256CharSet64[uint8(n>>18)],
+		e256CharSet64[uint8(n>>12)],
+		e256CharSet64[uint8(n>>6)],
+		e256CharSet64[uint8(n)],
+	}[len(minTable)-l:]
 }
 
 // Decode turns a slice of characters back into the original unit64.
