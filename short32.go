@@ -1,6 +1,10 @@
 package shortening // import "vallon.me/shortening"
 
 const CharSet32 = `ABCDEFGHIJKLMNOPQRSTUVWXYZ234567`
+const e256CharSet32 = CharSet32 + CharSet32 +
+	CharSet32 + CharSet32 +
+	CharSet32 + CharSet32 +
+	CharSet32 + CharSet32
 
 var lookupTable32 = makeTable(CharSet32)
 
@@ -34,7 +38,7 @@ func Encode32(n uint64) []byte {
 
 	buf := make([]byte, l)
 	for i := l - 1; 0 <= i; i-- {
-		buf[i], n = CharSet32[n&31], n>>5
+		buf[i], n = e256CharSet32[uint8(n)], n>>5
 	}
 
 	return buf
