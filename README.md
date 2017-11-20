@@ -29,8 +29,6 @@ of length *n*.
 |--------------|--------|
 |  Encode      |   66.2 |
 |  Decode      |   30.9 |
-|  BigEncode   | 1560.0 |
-|  BigDecode   |  759.0 |
 
 * go1.9 darwin/amd64
 * Intel Core i7 920 - 2.66 GHz
