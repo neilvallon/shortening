@@ -27,12 +27,12 @@ of length *n*.
 ## Performance
 |  Benchmark   |  ns/op |
 |--------------|--------|
-|  Encode64    |   47.4 |
-|  Decode64    |   25.6 |
-|  Encode32    |   48.1 |
-|  Decode32    |   26.8 |
+|  Encode64    |   46.2 |
+|  Decode64    |   21.6 |
+|  Encode32    |   46.4 |
+|  Decode32    |   23.7 |
 
-* go1.9.2 darwin/amd64
+* go1.12.4 darwin/amd64
 * Intel Xeon X5675 - 3.06 GHz
 
 ## References
